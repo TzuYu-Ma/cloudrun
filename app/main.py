@@ -333,6 +333,7 @@ def download_all_files(grid):
         return "Internal Server Error", 500
 
 
+import time
 # Route updated from local machine    
 @app.route('/download_data', methods=['GET'])
 def download_data():
@@ -341,6 +342,10 @@ def download_data():
     # 使用絕對路徑來讀取 config.json 文件
     config_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
     logging.debug(f"Config file path: {config_file_path}")  # 打印文件路徑
+    
+        # 延遲2秒等待文件系統更新
+    time.sleep(2)
+
     try:
         with open(config_file_path, 'r') as config_file:
             config_data = json.load(config_file)

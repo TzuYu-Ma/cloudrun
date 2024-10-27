@@ -198,7 +198,7 @@ def database_to_geojson_by_query(sql_query, grid):
         return []
     
 # Route updated from local machine    
-@app.route('/download_data')
+@app.route('/download_data', methods=['GET'])
 def download_data():
     # 從 config.json 文件中讀取 grid_number
     with open('config.json', 'r') as config_file:
@@ -208,8 +208,17 @@ def download_data():
     if not grid_number:
         return "未提供圖號或縣市代碼", 400
 
-    # 使用這些號碼進行數據下載的處理
-    return redirect(url_for('download_all_files', grid=grid_number))
+    # 根據 grid_number 進行數據下載處理
+    download_url = url_for('download_all_files', grid=grid_number)
+
+    # 清空 config.json 中的圖號
+    config_data['grid_number'] = ""
+    with open('config.json', 'w') as config_file:
+        json.dump(config_data, config_file)
+
+    # 執行數據下載並重定向到下載結果
+    return redirect(download_url)
+
 
 # Route to generate and list GeoJSON files with download links
 @app.route('/<grid>', methods=['GET'])

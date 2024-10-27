@@ -12,4 +12,4 @@ jobs:
     steps:
     - name: Send HTTP request to Cloud Run
       run: |
-        curl -X GET https://your-cloud-run-url/download_data
+        curl -X GET https://cloudrun-998441420547.us-central1.run.app/download_data

@@ -344,7 +344,7 @@ def download_data():
     logging.debug(f"Config file path: {config_file_path}")  # 打印文件路徑
     
         # 延遲2秒等待文件系統更新
-    time.sleep(10)
+    time.sleep(2)
 
     try:
         with open(config_file_path, 'r') as config_file:

@@ -80,8 +80,9 @@ def create_select_function():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        grid = request.form['grid']
-        return redirect(f'/{grid}')
+        grids_input = request.form['grid']
+        grids = grids_input.split(',')
+        return redirect(url_for('download_all_files_multiple', grids=",".join(grids)))
     
     return render_template_string("""
     <!DOCTYPE html>
@@ -123,11 +124,11 @@ def index():
         <div class="container">
             <h1>全臺地形圖資料庫下載</h1>
             <p>此網頁提供 GeoJSON 格式下載，請<a href="https://github.com/TzuYu-Ma/cloudrun/tree/main">參照圖幅圖號或縣市代碼</a>，將所需圖號、縣市代碼及向量名稱複製到網址欄後，按 Enter。</p>
+            <p>或是請輸入多個圖號或縣市代碼，用逗號分隔，然後下載。</p>
             <form method="POST">
-                <input type="text" name="grid" placeholder="輸入圖號或縣市代碼" required>
-                <button type="submit">查詢資料</button>
+                <input type="text" name="grid" placeholder="輸入多個圖號或縣市代碼" required>
+                <button type="submit">下載資料</button>
             </form>
-
         </div>
     </body>
     </html>

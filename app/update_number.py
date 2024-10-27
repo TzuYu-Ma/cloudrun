@@ -16,7 +16,7 @@ with open('config.json', 'w') as config_file:
 # 自動執行 git 操作
 os.system("git add config.json")
 os.system(f'git commit -m "更新圖號數據: {user_input}"')
-os.system("git push origin master")
+os.system("git push origin main")
 
 # 發送請求到 Cloud Run 來觸發下載
 cloud_run_url = 'https://cloudrun-998441420547.us-central1.run.app/download_data'

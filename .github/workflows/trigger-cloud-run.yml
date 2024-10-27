@@ -1,0 +1,15 @@
+name: Trigger Cloud Run Download
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  trigger-download:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Send HTTP request to Cloud Run
+      run: |
+        curl -X GET https://your-cloud-run-url/download_data

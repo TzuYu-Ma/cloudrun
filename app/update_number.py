@@ -22,9 +22,23 @@ os.system("git push origin main")
 cloud_run_url = 'https://cloudrun-998441420547.us-central1.run.app/download_data'
 
 try:
-    response = requests.get(cloud_run_url)
+    # 發送請求以觸發下載
+    response = requests.get(cloud_run_url, allow_redirects=True)
     if response.status_code == 200:
-        print("下載成功觸發！")
+        # 檢查是否有重定向到下載 URL
+        download_url = response.url  # 這裡取得最終的下載 URL
+        print(f"下載 URL: {download_url}")
+
+        # 開始下載文件
+        download_response = requests.get(download_url, stream=True)
+        if download_response.status_code == 200:
+            # 將下載的文件保存到本地
+            with open('downloaded_files.zip', 'wb') as f:
+                for chunk in download_response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            print("下載完成，文件已保存為 downloaded_files.zip")
+        else:
+            print(f"下載失敗，狀態碼: {download_response.status_code}")
     else:
         print(f"觸發失敗，狀態碼: {response.status_code}")
 except Exception as e:

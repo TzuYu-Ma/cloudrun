@@ -336,28 +336,35 @@ def download_all_files(grid):
 @app.route('/download_data', methods=['GET'])
 def download_data():
     logging.debug("Received request for /download_data")
-    # 從 config.json 文件中讀取 grid_number
-    with open('config.json', 'r') as config_file:
-        config_data = json.load(config_file)
-        grid_number = config_data.get("grid_number", "")
-    
+
+    # 使用絕對路徑來讀取 config.json 文件
+    config_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
+    try:
+        with open(config_file_path, 'r') as config_file:
+            config_data = json.load(config_file)
+            grid_number = config_data.get("grid_number", "")
+    except Exception as e:
+        logging.error(f"Failed to read config.json: {e}")
+        return "Failed to read configuration", 500
+
     if not grid_number:
         logging.error("No grid number provided")
         return "未提供圖號或縣市代碼", 400
 
     logging.debug(f"Processing download for grid: {grid_number}")
+
     # 根據 grid_number 進行數據下載處理
     download_url = url_for('download_all_files', grid=grid_number)
 
     # 清空 config.json 中的圖號
     config_data['grid_number'] = ""
-    with open('config.json', 'w') as config_file:
+    with open(config_file_path, 'w') as config_file:
         json.dump(config_data, config_file)
 
     logging.debug(f"Redirecting to {download_url} for download")
     # 執行數據下載並重定向到下載結果
     return redirect(download_url)
-   
+
 # Route to get GeoJSON data for a specific table within a given grid
 @app.route('/<grid>/<table_name>', methods=['GET'])
 def get_geojson_data(table_name, grid):

@@ -125,9 +125,11 @@ def index():
             <h1>全臺地形圖資料庫下載</h1>
             <p>此網頁提供 GeoJSON 格式下載，請<a href="https://github.com/TzuYu-Ma/cloudrun/tree/main">參照圖幅圖號或縣市代碼</a>，將所需圖號、縣市代碼及向量名稱複製到網址欄後，按 Enter。</p>
             <p>或是請輸入多個圖號或縣市代碼，用逗號分隔，然後下載。</p>
-            <form method="POST">
-                <input type="text" name="grid" placeholder="輸入多個圖號或縣市代碼" required>
-                <button type="submit">下載資料</button>
+            <form method="POST" style="display: flex; flex-direction: column; align-items: center;">
+                <textarea name="grid" placeholder="輸入多個圖號或縣市代碼（如 94181SE, 9420, 10018）" required rows="4" style="width: 100%; max-width: 400px; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 20px; resize: none;"></textarea>
+                <button type="submit" style="padding: 10px 20px; font-size: 16px; color: white; background-color: #1a73e8; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease;">
+                    下載資料
+                </button>
             </form>
         </div>
     </body>

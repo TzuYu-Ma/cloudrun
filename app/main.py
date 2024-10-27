@@ -4,6 +4,7 @@ import os
 import json
 import zipfile
 import logging
+from os import BytesIO
 
 # create the Flask app
 app = Flask(__name__)
@@ -195,38 +196,6 @@ def database_to_geojson_by_query(sql_query, grid):
         logging.error(f"Error in database_to_geojson_by_query: {e}")
         return []
 
-# Route to download all GeoJSON files as a ZIP archive for multiple grids
-@app.route('/download_all_multiple/<grids>', methods=['GET'])
-def download_all_files_multiple(grids):
-    try:
-        grid_list = grids.split(',')
-        all_geojson_files = []
-
-        # For each grid, generate GeoJSON files
-        for grid in grid_list:
-            sql_query = f"SELECT * FROM select_tables_within_county('{grid}');"
-            geojson_files = database_to_geojson_by_query(sql_query, grid)
-
-            if geojson_files:
-                all_geojson_files.extend(geojson_files)
-            else:
-                logging.error(f"No GeoJSON files generated for grid: {grid}")
-                return f"No GeoJSON files generated for {grid}", 500
-
-        # Create a ZIP file in memory to hold all GeoJSON files
-        zip_buffer = BytesIO()
-        with zipfile.ZipFile(zip_buffer, 'w') as zipf:
-            for geojson_file in all_geojson_files:
-                zipf.write(geojson_file)
-
-        zip_buffer.seek(0)  # Move to the start of the BytesIO buffer
-        return send_file(zip_buffer, as_attachment=True, download_name='all_geojson_files.zip', mimetype='application/zip')
-
-    except Exception as e:
-        logging.error(f"Error in download_all_files_multiple: {e}")
-        return "Internal Server Error", 500
-
-
 # Route to generate and list GeoJSON files with download links
 @app.route('/<grid>', methods=['GET'])
 def get_json(grid):
@@ -330,19 +299,34 @@ def download_file(filename):
 @app.route('/download_all/<grid>', methods=['GET'])
 def download_all_files(grid):
     try:
-        sql_query = f"SELECT * FROM select_tables_within_county('{grid}');"
-        geojson_files = database_to_geojson_by_query(sql_query, grid)
-        
-        if not geojson_files:
-            logging.error(f"No GeoJSON files to zip for grid: {grid}")
-            return "No GeoJSON files to zip", 500
+        # 支持多個 grid，用逗號分隔
+        grid_list = grid.split(',')
+        zip_buffer = BytesIO()  # 使用 BytesIO 在內存中存儲壓縮包
 
-        zip_filename = f"{grid}_geojson_files.zip"
-        with zipfile.ZipFile(zip_filename, 'w') as zipf:
-            for geojson_file in geojson_files:
-                zipf.write(geojson_file)
-        
-        return send_file(zip_filename, as_attachment=True)
+        # 創建最終壓縮包
+        with zipfile.ZipFile(zip_buffer, 'w') as combined_zip:
+            # 針對每個 grid 生成對應的 GeoJSON 文件和單獨的 ZIP 文件
+            for g in grid_list:
+                sql_query = f"SELECT * FROM select_tables_within_county('{g}');"
+                geojson_files = database_to_geojson_by_query(sql_query, g)
+
+                if not geojson_files:
+                    logging.error(f"No GeoJSON files generated for grid: {g}")
+                    return f"No GeoJSON files generated for {g}", 500
+
+                # 為每個 grid 生成單獨的 ZIP 文件
+                zip_filename = f"{g}_geojson_files.zip"
+                with zipfile.ZipFile(zip_filename, 'w') as grid_zip:
+                    for geojson_file in geojson_files:
+                        grid_zip.write(geojson_file)
+
+                # 將每個 grid 的 ZIP 文件寫入總的壓縮包
+                combined_zip.write(zip_filename)
+
+        # 將總的壓縮包發送給用戶
+        zip_buffer.seek(0)  # 將指針移到開頭
+        return send_file(zip_buffer, as_attachment=True, download_name='all_geojson_files.zip', mimetype='application/zip')
+
     except Exception as e:
         logging.error(f"Error in download_all_files: {e}")
         return "Internal Server Error", 500

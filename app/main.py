@@ -82,8 +82,7 @@ def create_select_function():
 def index():
     if request.method == 'POST':
         grids_input = request.form['grid']
-        grids = grids_input.split(',')
-        return redirect(url_for('download_all', grids=",".join(grids)))
+        return redirect(url_for('download_all_files', grid=grids_input))
     
     return render_template_string("""
     <!DOCTYPE html>

@@ -3,7 +3,7 @@ name: Trigger Cloud Run Download
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   trigger-download:

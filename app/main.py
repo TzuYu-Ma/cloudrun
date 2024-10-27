@@ -4,7 +4,7 @@ import os
 import json
 import zipfile
 import logging
-from os import BytesIO
+from io import BytesIO
 
 # create the Flask app
 app = Flask(__name__)

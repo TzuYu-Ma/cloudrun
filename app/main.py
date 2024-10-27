@@ -195,6 +195,38 @@ def database_to_geojson_by_query(sql_query, grid):
         logging.error(f"Error in database_to_geojson_by_query: {e}")
         return []
 
+# Route to download all GeoJSON files as a ZIP archive for multiple grids
+@app.route('/download_all_multiple/<grids>', methods=['GET'])
+def download_all_files_multiple(grids):
+    try:
+        grid_list = grids.split(',')
+        all_geojson_files = []
+
+        # For each grid, generate GeoJSON files
+        for grid in grid_list:
+            sql_query = f"SELECT * FROM select_tables_within_county('{grid}');"
+            geojson_files = database_to_geojson_by_query(sql_query, grid)
+
+            if geojson_files:
+                all_geojson_files.extend(geojson_files)
+            else:
+                logging.error(f"No GeoJSON files generated for grid: {grid}")
+                return f"No GeoJSON files generated for {grid}", 500
+
+        # Create a ZIP file in memory to hold all GeoJSON files
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w') as zipf:
+            for geojson_file in all_geojson_files:
+                zipf.write(geojson_file)
+
+        zip_buffer.seek(0)  # Move to the start of the BytesIO buffer
+        return send_file(zip_buffer, as_attachment=True, download_name='all_geojson_files.zip', mimetype='application/zip')
+
+    except Exception as e:
+        logging.error(f"Error in download_all_files_multiple: {e}")
+        return "Internal Server Error", 500
+
+
 # Route to generate and list GeoJSON files with download links
 @app.route('/<grid>', methods=['GET'])
 def get_json(grid):

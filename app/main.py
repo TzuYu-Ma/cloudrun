@@ -356,11 +356,6 @@ def download_data():
     # 根據 grid_number 進行數據下載處理
     download_url = url_for('download_all_files', grid=grid_number)
 
-    # 清空 config.json 中的圖號
-    config_data['grid_number'] = ""
-    with open(config_file_path, 'w') as config_file:
-        json.dump(config_data, config_file)
-
     logging.debug(f"Redirecting to {download_url} for download")
     return redirect(download_url)
 

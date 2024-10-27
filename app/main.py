@@ -362,7 +362,6 @@ def download_data():
         json.dump(config_data, config_file)
 
     logging.debug(f"Redirecting to {download_url} for download")
-    # 執行數據下載並重定向到下載結果
     return redirect(download_url)
 
 # Route to get GeoJSON data for a specific table within a given grid

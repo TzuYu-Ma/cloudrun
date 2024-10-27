@@ -196,6 +196,20 @@ def database_to_geojson_by_query(sql_query, grid):
     except Exception as e:
         logging.error(f"Error in database_to_geojson_by_query: {e}")
         return []
+    
+# Route updated from local machine    
+@app.route('/download_data')
+def download_data():
+    # 從 config.json 文件中讀取 grid_number
+    with open('config.json', 'r') as config_file:
+        config_data = json.load(config_file)
+        grid_number = config_data.get("grid_number", "")
+    
+    if not grid_number:
+        return "未提供圖號或縣市代碼", 400
+
+    # 使用這些號碼進行數據下載的處理
+    return redirect(url_for('download_all_files', grid=grid_number))
 
 # Route to generate and list GeoJSON files with download links
 @app.route('/<grid>', methods=['GET'])

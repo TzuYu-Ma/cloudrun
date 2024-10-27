@@ -332,19 +332,7 @@ def download_all_files(grid):
         logging.error(f"Error in download_all_files: {e}")
         return "Internal Server Error", 500
 
-@app.route('/test_file_access', methods=['GET'])
-def test_file_access():
-    try:
-        # 測試讀取文件
-        config_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
-        with open(config_file_path, 'r') as f:
-            content = f.read()
-        return f"文件讀取成功，內容為: {content}", 200
-    except Exception as e:
-        logging.error(f"文件讀取失敗: {e}")
-        return f"文件讀取失敗: {e}", 500
 
-    
 # Route updated from local machine    
 @app.route('/download_data', methods=['GET'])
 def download_data():
@@ -352,6 +340,7 @@ def download_data():
 
     # 使用絕對路徑來讀取 config.json 文件
     config_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
+    logging.debug(f"Config file path: {config_file_path}")  # 打印文件路徑
     try:
         with open(config_file_path, 'r') as config_file:
             config_data = json.load(config_file)
